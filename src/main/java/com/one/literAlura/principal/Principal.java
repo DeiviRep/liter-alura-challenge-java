@@ -1,5 +1,7 @@
 package com.one.literAlura.principal;
 
+import com.one.literAlura.model.Bock;
+import com.one.literAlura.model.DatosBock;
 import com.one.literAlura.model.ListDatosBock;
 import com.one.literAlura.repository.BockRepository;
 import com.one.literAlura.service.ConsumoAPI;
@@ -15,14 +17,15 @@ public class Principal {
     }
 
     public void muestraElMenu() {
-        getDatosSerie();
+        getDatosListBocks();
     }
 
-    private void getDatosSerie() {
+    private ListDatosBock getDatosListBocks() {
         var json = consumoApi.obtenerDatos(URL_BASE);
         System.out.println("== BOOKS API ==");
-        var datos = conversor.obtenerDatos(json, ListDatosBock.class);
+        ListDatosBock datos = conversor.obtenerDatos(json, ListDatosBock.class);
         System.out.println(datos);
+        return datos;
     }
     
 }
