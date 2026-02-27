@@ -7,6 +7,7 @@ import java.util.Scanner;
 import com.one.literAlura.model.Bock;
 import com.one.literAlura.model.DatosBock;
 import com.one.literAlura.model.GutendexResponse;
+import com.one.literAlura.repository.AuthorRepository;
 import com.one.literAlura.repository.BockRepository;
 import com.one.literAlura.service.ConsumoAPI;
 import com.one.literAlura.service.ConvierteDatos;
@@ -19,9 +20,11 @@ public class Principal {
     private final String SLASH = "/";
     private ConvierteDatos conversor = new ConvierteDatos();
     private BockRepository repositorio;
+    private AuthorRepository authorRepo;
 
-    public Principal(BockRepository repository) {
+    public Principal(BockRepository repository, AuthorRepository authorRepository) {
         this.repositorio = repository;
+        this.authorRepo = authorRepository;
     }
 
     // === MENU PRINCIPAL === //
@@ -35,6 +38,8 @@ public class Principal {
             System.out.println("3) Listar libros guardados");            
             System.out.println("4) Buscar por Título (guarda primer resultado)");
             System.out.println("5) Listar por Idioma");
+            System.out.println("6) Listar Autores (de libros guardados)");
+            System.out.println("7) Listar Autores vivos en un año");
             System.out.println("0) Salir");
             System.out.print("Elige una opción: ");
 
@@ -51,6 +56,8 @@ public class Principal {
                 case 3 -> listarLibrosGuardados();
                 case 4 -> buscarYGuardarPorTitulo();
                 case 5 -> listarPorIdioma();
+                case 6 -> listarAutores();
+                case 7 -> listarAutoresVivosEnAnio();
                 case 0 -> System.out.println("👋 Saliendo... ¡Hasta luego!");
                 default -> System.out.println("❌ Opción no válida. Intenta nuevamente.");
             }
@@ -151,6 +158,35 @@ public class Principal {
             return;
         }
         lista.forEach(System.out::println);
+    }
+
+    private void listarAutores() {
+        System.out.println("\n== AUTORES (de libros guardados) ==");
+        var autores = authorRepo.findDistinctFromBooks();
+        if (autores.isEmpty()) {
+            System.out.println("📭 No hay autores asociados a libros guardados.");
+            return;
+        }
+        autores.forEach(System.out::println); // usa Author.toString() simple que ya hicimos
+    }
+
+    private void listarAutoresVivosEnAnio() {
+        System.out.println("\n== AUTORES VIVOS EN UN AÑO ==");
+        System.out.print("Ingresa el año (ej: 1900): ");
+        int year;
+        try {
+            year = Integer.parseInt(teclado.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("❌ Año inválido.");
+            return;
+        }
+
+        var autores = authorRepo.findAliveInYear(year);
+        if (autores.isEmpty()) {
+            System.out.println("📭 No hay autores vivos en el año: " + year);
+            return;
+        }
+        autores.forEach(System.out::println);
     }
 
 }
