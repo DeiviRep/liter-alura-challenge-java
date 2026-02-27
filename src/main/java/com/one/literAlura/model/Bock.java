@@ -27,11 +27,12 @@ public class Bock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String titulo;
+    @Column(columnDefinition = "text")
     private String resumen;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {
         CascadeType.PERSIST, CascadeType.MERGE
     })
     @JoinTable(
@@ -41,8 +42,11 @@ public class Bock {
     )
     private Set<Author> autores = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(name = "bock_languages", joinColumns = @JoinColumn(name = "bock_id"))
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "bock_languages", 
+        joinColumns = @JoinColumn(name = "bock_id")
+    )
     @Column(name = "language")
     private List<String> lenguajes = new ArrayList<>();
 
