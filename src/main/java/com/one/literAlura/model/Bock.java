@@ -46,6 +46,11 @@ public class Bock {
     )
     private Set<Author> autores = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "bock_languages", joinColumns = @JoinColumn(name = "bock_id"))
+    @Column(name = "language")
+    private List<String> lenguajes = new ArrayList<>();
+
     public Bock(){}
 
     public Bock(DatosBock dto) {
@@ -55,6 +60,7 @@ public class Bock {
         this.resumen = dto.resumen().toString();
         this.lenguaje = dto.lenguaje().get(0);
         this.descargas = dto.descargas();
+        this.lenguajes = new ArrayList<>(dto.lenguaje());
     }
 
     @Override
@@ -65,6 +71,7 @@ public class Bock {
                ", resumenLines=" + (resumen == null ? 0 : Arrays.toString(resumen.split("\\R",-1))) + '\'' +
                ", autores=" + (autores == null ? "[]" : autores) + '\'' + 
                ", descargas=" + (descargas == null ? 0 : descargas) + '\'' +
+               ", lenguajes=" + (lenguajes == null ? "[]" : lenguajes) + '\'' +
                ", lenguaje=" + (lenguaje) +
                '}';
     }

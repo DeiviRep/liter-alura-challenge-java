@@ -40,6 +40,7 @@ public class Principal {
             System.out.println("5) Listar por Idioma");
             System.out.println("6) Listar Autores (de libros guardados)");
             System.out.println("7) Listar Autores vivos en un año");
+            System.out.println("8) Estadísticas: cantidad de libros por idioma");
             System.out.println("0) Salir");
             System.out.print("Elige una opción: ");
 
@@ -58,6 +59,7 @@ public class Principal {
                 case 5 -> listarPorIdioma();
                 case 6 -> listarAutores();
                 case 7 -> listarAutoresVivosEnAnio();
+                case 8 -> estadisticasPorIdioma();
                 case 0 -> System.out.println("👋 Saliendo... ¡Hasta luego!");
                 default -> System.out.println("❌ Opción no válida. Intenta nuevamente.");
             }
@@ -187,6 +189,35 @@ public class Principal {
             return;
         }
         autores.forEach(System.out::println);
+    }
+
+    private void estadisticasPorIdioma() {
+        System.out.println("\n== ESTADÍSTICAS POR IDIOMA ==");
+        System.out.print("Ingresa códigos de idioma separados por coma (ej: en,es,fr): ");
+        var line = teclado.nextLine().trim();
+        if (line.isBlank()) {
+            System.out.println("❌ Debes ingresar al menos un código de idioma.");
+            return;
+        }
+
+        var codes = java.util.Arrays.stream(line.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isBlank())
+                    .map(String::toLowerCase)
+                    .toList();
+
+        var rows = repositorio.countByLenguajes(codes);
+        if (rows.isEmpty()) {
+            System.out.println("📭 No hay libros para los idiomas: " + codes);
+            return;
+        }
+
+        System.out.println("\nIdioma -> Cantidad");
+        for (Object[] r : rows) {
+            var lang = (String) r[0];
+            var count = ((Number) r[1]).longValue();
+            System.out.printf("%s -> %d%n", lang, count);
+        }
     }
 
 }
