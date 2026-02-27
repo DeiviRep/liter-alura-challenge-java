@@ -11,7 +11,8 @@ public record DatosBock(
     @JsonAlias("title") String titulo,
     @JsonAlias("authors") List<DatosAuthor> autores,
     @JsonAlias("summaries") List<String> resumen,
-    @JsonAlias("languages") List<String> lenguaje
+    @JsonAlias("languages") List<String> lenguaje,
+    @JsonAlias("download_count") Integer descargas
 
 ) {
 

@@ -30,7 +30,11 @@ public class Bock {
     @Column(nullable = false, length = 500)
     private String titulo;
     @Column(columnDefinition = "text")
-    private String resumen;
+    private String resumen;       
+    @Column(length = 10)
+    private String lenguaje; 
+    @Column
+    private Integer descargas;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {
         CascadeType.PERSIST, CascadeType.MERGE
@@ -42,14 +46,6 @@ public class Bock {
     )
     private Set<Author> autores = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "bock_languages", 
-        joinColumns = @JoinColumn(name = "bock_id")
-    )
-    @Column(name = "language")
-    private List<String> lenguajes = new ArrayList<>();
-
     public Bock(){}
 
     public Bock(DatosBock dto) {
@@ -57,18 +53,19 @@ public class Bock {
         this.autores = dto.autores().stream().map(Author::new)
                 .collect(Collectors.toCollection(HashSet::new));
         this.resumen = dto.resumen().toString();
-        this.lenguajes = dto.lenguaje();
+        this.lenguaje = dto.lenguaje().get(0);
+        this.descargas = dto.descargas();
     }
 
     @Override
 
     public String toString() {
         return "Bock{" +
-               "id=" + Id +
                ", titulo='" + safe(titulo) + '\'' +
-               ", resumenLines=" + (resumen == null ? 0 : Arrays.toString(resumen.split("\\R",-1))) +
-               ", autores=" + (lenguajes == null ? "[]" : autores) +
-               ", lenguajes=" + (lenguajes == null ? "[]" : lenguajes) +
+               ", resumenLines=" + (resumen == null ? 0 : Arrays.toString(resumen.split("\\R",-1))) + '\'' +
+               ", autores=" + (autores == null ? "[]" : autores) + '\'' + 
+               ", descargas=" + (descargas == null ? 0 : descargas) + '\'' +
+               ", lenguaje=" + (lenguaje) +
                '}';
     }
 
@@ -94,5 +91,13 @@ public class Bock {
 
     public void setResumen(String resumen) {
         this.resumen = resumen;
+    }
+
+    public Integer getDescargas() {
+        return descargas;
+    }
+
+    public void setDescargas(Integer descargas) {
+        this.descargas = descargas;
     }
 }

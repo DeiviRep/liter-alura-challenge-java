@@ -1,9 +1,12 @@
 package com.one.literAlura.principal;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 import com.one.literAlura.model.Bock;
 import com.one.literAlura.model.DatosBock;
+import com.one.literAlura.model.GutendexResponse;
 import com.one.literAlura.repository.BockRepository;
 import com.one.literAlura.service.ConsumoAPI;
 import com.one.literAlura.service.ConvierteDatos;
@@ -29,7 +32,9 @@ public class Principal {
             System.out.println("\n===== LITER ALURA - BOOK FINDER =====");
             System.out.println("1) Buscar libro por ID");
             System.out.println("2) Guardar libro por ID");
-            System.out.println("3) Listar libros guardados");
+            System.out.println("3) Listar libros guardados");            
+            System.out.println("4) Buscar por Título (guarda primer resultado)");
+            System.out.println("5) Listar por Idioma");
             System.out.println("0) Salir");
             System.out.print("Elige una opción: ");
 
@@ -44,6 +49,8 @@ public class Principal {
                 case 1 -> buscarLibroPorId();
                 case 2 -> guardarLibroPorId();
                 case 3 -> listarLibrosGuardados();
+                case 4 -> buscarYGuardarPorTitulo();
+                case 5 -> listarPorIdioma();
                 case 0 -> System.out.println("👋 Saliendo... ¡Hasta luego!");
                 default -> System.out.println("❌ Opción no válida. Intenta nuevamente.");
             }
@@ -52,7 +59,7 @@ public class Principal {
 
     // === FUNCIONES === //
 
-    private DatosBock getDatosBock(String id) {
+    private DatosBock getDatosBockPorId(String id) {
         try {
             var json = consumoApi.obtenerDatos(URL_BASE + id + SLASH);
             return conversor.obtenerDatos(json, DatosBock.class);
@@ -67,7 +74,7 @@ public class Principal {
         System.out.print("Ingresa el ID del libro: ");
         String id = teclado.nextLine();
 
-        DatosBock datos = getDatosBock(id);
+        DatosBock datos = getDatosBockPorId(id);
         if (datos == null) {
             System.out.println("❌ No se encontró el libro.");
             return;
@@ -83,7 +90,7 @@ public class Principal {
         System.out.print("Ingresa el ID del libro a guardar: ");
         String id = teclado.nextLine();
 
-        DatosBock datos = getDatosBock(id);
+        DatosBock datos = getDatosBockPorId(id);
         if (datos == null) {
             System.out.println("❌ No se pudo obtener el libro.");
             return;
@@ -107,4 +114,43 @@ public class Principal {
 
         lista.forEach(System.out::println);
     }
+
+    private void buscarYGuardarPorTitulo() {
+        System.out.println("\n== BUSCAR POR TÍTULO ==");
+        System.out.print("Ingresa el título o parte del título: ");
+        String titulo = teclado.nextLine();
+
+        try {
+            String url = URL_BASE + "?search=" + URLEncoder.encode(titulo, StandardCharsets.UTF_8);
+            var json = consumoApi.obtenerDatos(url);
+            var resp = conversor.obtenerDatos(json, GutendexResponse.class);
+
+            if (resp == null || resp.results() == null || resp.results().isEmpty()) {
+                System.out.println("📭 Sin resultados para: " + titulo);
+                return;
+            }
+
+            var dto = resp.results().get(0); // primer resultado
+            var bock = new Bock(dto);
+            repositorio.save(bock);
+            System.out.println("✅ Guardado primer resultado:");
+            System.out.println(bock);
+        } catch (Exception e) {
+            System.out.println("❌ Error buscando por título: " + e.getMessage());
+        }
+    }
+
+    private void listarPorIdioma() {
+        System.out.println("\n== LISTAR POR IDIOMA ==");
+        System.out.print("Ingresa el código de idioma (ej: en, es, fr): ");
+        var code = teclado.nextLine().trim();
+
+        var lista = repositorio.findByLenguajeIgnoreCase(code);
+        if (lista.isEmpty()) {
+            System.out.println("📭 No hay libros guardados en el idioma: " + code);
+            return;
+        }
+        lista.forEach(System.out::println);
+    }
+
 }

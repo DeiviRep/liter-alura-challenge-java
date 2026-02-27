@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ListDatosBock(
-    @JsonAlias("results") List<DatosBock> Bocks
+public record GutendexResponse(
+    @JsonAlias("results") List<DatosBock> results
 ) {
 
 }
